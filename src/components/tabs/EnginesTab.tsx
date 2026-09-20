@@ -9,7 +9,7 @@ import {
   cmykToRgb,
   clamp,
 } from '../../utils/colorMath';
-import { Sliders, Check, Copy, Hash, Paintbrush, Layers, Printer } from 'lucide-react';
+import { Sliders, Copy, Hash, Paintbrush, Layers, Printer } from 'lucide-react';
 
 interface EnginesTabProps {
   activeColor: ActiveColor;

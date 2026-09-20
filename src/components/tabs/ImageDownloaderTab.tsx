@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ActiveColor, DownloadResolution, CardLayoutStyle, ExportFormat } from '../../types';
-import { Download, Check, Sparkles, Sliders, ImageDown, Eye } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 
 interface ImageDownloaderTabProps {
   activeColor: ActiveColor;
@@ -63,6 +63,54 @@ export const ImageDownloaderTab: React.FC<ImageDownloaderTabProps> = ({
 
   const activeRes = RESOLUTIONS.find((r) => r.key === selectedResolutionKey) || RESOLUTIONS[4];
 
+  // Helper to draw rounded rectangle with universal fallback
+  const drawRoundRect = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number
+  ) => {
+    if (typeof (ctx as any).roundRect === 'function') {
+      (ctx as any).roundRect(x, y, w, h, r);
+    } else {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+  };
+
+  // Helper to measure and fit text within maxWidth without ever overflowing
+  const fitText = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number,
+    fontFamily: string,
+    targetSize: number,
+    minSize: number,
+    weight: string = 'normal'
+  ): { text: string; size: number } => {
+    let size = targetSize;
+    ctx.font = `${weight} ${size}px ${fontFamily}`;
+    while (ctx.measureText(text).width > maxWidth && size > minSize) {
+      size -= 1;
+      ctx.font = `${weight} ${size}px ${fontFamily}`;
+    }
+    if (ctx.measureText(text).width > maxWidth) {
+      let truncated = text;
+      while (ctx.measureText(truncated + '…').width > maxWidth && truncated.length > 2) {
+        truncated = truncated.slice(0, -1);
+      }
+      return { text: truncated + '…', size };
+    }
+    return { text, size };
+  };
+
   // Draw on Canvas
   const drawCard = (canvas: HTMLCanvasElement, targetW: number, targetH: number) => {
     canvas.width = targetW;
@@ -71,19 +119,32 @@ export const ImageDownloaderTab: React.FC<ImageDownloaderTabProps> = ({
     if (!ctx) return;
 
     const { hex, rgb, hsl, cmyk } = activeColor;
-    const scale = targetW / 800; // base scale against catalog spec
+    const isPortrait = targetH > targetW * 1.1; // e.g. Mobile 1080x1920
+    const minDim = Math.min(targetW, targetH);
+    const baseScale = minDim / 600; // responsive scale based on shortest dimension
 
     if (selectedStyle === 'solid') {
       // Pure edge-to-edge fill
       ctx.fillStyle = hex;
       ctx.fillRect(0, 0, targetW, targetH);
 
-      // Subtle minimalist label in corner
-      ctx.fillStyle = hsl.l > 55 ? '#00000088' : '#ffffffaa';
-      ctx.font = `600 ${Math.max(16, Math.round(20 * scale))}px monospace`;
+      // Subtle minimalist label in corner with automatic width guarantee
+      const maxLabelW = targetW * 0.7;
+      const { text: labelText, size: labelSize } = fitText(
+        ctx,
+        `${hex} · Color Encyclopedia`,
+        maxLabelW,
+        'monospace',
+        Math.max(14, Math.round(20 * baseScale)),
+        12,
+        '600'
+      );
+
+      ctx.font = `600 ${labelSize}px monospace`;
+      ctx.fillStyle = hsl.l > 55 ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.75)';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(`${hex} · Color Encyclopedia`, targetW - 30 * scale, targetH - 30 * scale);
+      ctx.fillText(labelText, targetW - 28 * baseScale, targetH - 24 * baseScale);
     } else if (selectedStyle === 'radial') {
       // Radial Glow: dark vignette background with center glow
       ctx.fillStyle = '#09090B';
@@ -92,13 +153,13 @@ export const ImageDownloaderTab: React.FC<ImageDownloaderTabProps> = ({
       const radial = ctx.createRadialGradient(
         targetW / 2,
         targetH / 2,
-        10 * scale,
+        10 * baseScale,
         targetW / 2,
         targetH / 2,
         Math.max(targetW, targetH) * 0.55
       );
       radial.addColorStop(0, hex);
-      radial.addColorStop(0.7, `${hex}44`);
+      radial.addColorStop(0.65, `${hex}44`);
       radial.addColorStop(1, '#09090B');
       ctx.fillStyle = radial;
       ctx.fillRect(0, 0, targetW, targetH);
@@ -106,97 +167,272 @@ export const ImageDownloaderTab: React.FC<ImageDownloaderTabProps> = ({
       // Glowing Center Card
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = `bold ${Math.max(24, Math.round(54 * scale))}px monospace`;
-      ctx.fillText(hex, targetW / 2, targetH / 2 - 20 * scale);
 
-      ctx.font = `500 ${Math.max(14, Math.round(22 * scale))}px system-ui, sans-serif`;
-      ctx.fillStyle = '#E4E4E7';
-      ctx.fillText(
-        `rgb(${rgb.r}, ${rgb.g}, ${rgb.b}) · hsl(${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`,
-        targetW / 2,
-        targetH / 2 + 35 * scale
+      // 1. Title HEX
+      const maxTitleW = targetW * 0.85;
+      const { text: titleText, size: titleSize } = fitText(
+        ctx,
+        hex,
+        maxTitleW,
+        'monospace',
+        Math.max(24, Math.round(52 * baseScale)),
+        20,
+        'bold'
       );
+      ctx.font = `bold ${titleSize}px monospace`;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(titleText, targetW / 2, targetH / 2 - 24 * baseScale);
+
+      // 2. Color Name
+      const { text: nameText, size: nameSize } = fitText(
+        ctx,
+        activeColor.name || 'Universal Color Palette',
+        maxTitleW,
+        'system-ui, sans-serif',
+        Math.max(15, Math.round(24 * baseScale)),
+        13,
+        '600'
+      );
+      ctx.font = `600 ${nameSize}px system-ui, sans-serif`;
+      ctx.fillStyle = '#E4E4E7';
+      ctx.fillText(nameText, targetW / 2, targetH / 2 + 20 * baseScale);
+
+      // 3. Specs Subtitle (Split into 2 lines if portrait or narrow to prevent cut-off)
+      if (isPortrait) {
+        ctx.font = `500 ${Math.max(14, Math.round(18 * baseScale))}px monospace`;
+        ctx.fillStyle = '#A1A1AA';
+        ctx.fillText(`RGB: ${rgb.r}, ${rgb.g}, ${rgb.b}`, targetW / 2, targetH / 2 + 65 * baseScale);
+        ctx.fillText(`HSL: ${hsl.h}°, ${hsl.s}%, ${hsl.l}%`, targetW / 2, targetH / 2 + 95 * baseScale);
+      } else {
+        const fullSpec = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})  ·  hsl(${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
+        const { text: specText, size: specSize } = fitText(
+          ctx,
+          fullSpec,
+          maxTitleW,
+          'system-ui, monospace',
+          Math.max(13, Math.round(18 * baseScale)),
+          11,
+          '500'
+        );
+        ctx.font = `500 ${specSize}px system-ui, monospace`;
+        ctx.fillStyle = '#A1A1AA';
+        ctx.fillText(specText, targetW / 2, targetH / 2 + 58 * baseScale);
+      }
     } else {
       // Spec Card Style
-      // Neutral crisp backdrop
-      ctx.fillStyle = '#18181B';
+      // Neutral crisp canvas backdrop
+      ctx.fillStyle = '#121215';
       ctx.fillRect(0, 0, targetW, targetH);
 
-      const margin = 40 * scale;
+      const margin = Math.round(minDim * 0.055);
+      const cardX = margin;
+      const cardY = margin;
       const cardW = targetW - margin * 2;
       const cardH = targetH - margin * 2;
+      const cornerRadius = Math.round(20 * baseScale);
 
       // Card frame
-      ctx.fillStyle = '#27272A';
+      ctx.fillStyle = '#1F1F24';
       ctx.beginPath();
-      ctx.roundRect(margin, margin, cardW, cardH, 24 * scale);
+      drawRoundRect(ctx, cardX, cardY, cardW, cardH, cornerRadius);
       ctx.fill();
 
-      // Swatch Block
-      const swatchH = cardH * 0.52;
-      ctx.fillStyle = hex;
-      ctx.beginPath();
-      ctx.roundRect(margin + 16 * scale, margin + 16 * scale, cardW - 32 * scale, swatchH, 16 * scale);
-      ctx.fill();
-
-      // Swatch Border
-      ctx.strokeStyle = '#FFFFFF22';
-      ctx.lineWidth = 1.5 * scale;
+      // Card outer border
+      ctx.strokeStyle = '#2E2E35';
+      ctx.lineWidth = Math.max(1, Math.round(1.5 * baseScale));
       ctx.stroke();
 
-      // Card Specs Info
-      const textStartY = margin + swatchH + 50 * scale;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
+      const padding = Math.round(16 * baseScale);
 
-      // Title & Name
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = `bold ${Math.max(20, Math.round(36 * scale))}px monospace`;
-      ctx.fillText(hex, margin + 24 * scale, textStartY);
+      if (isPortrait) {
+        // --- PORTRAIT LAYOUT (e.g. Mobile Wallpaper 1080x1920) ---
+        const swatchH = Math.round(cardH * 0.58);
+        const swatchW = cardW - padding * 2;
 
-      ctx.fillStyle = '#A1A1AA';
-      ctx.font = `500 ${Math.max(12, Math.round(18 * scale))}px system-ui, sans-serif`;
-      ctx.fillText(
-        `${activeColor.name || 'Universal Color Palette'}`,
-        margin + 24 * scale,
-        textStartY + 42 * scale
-      );
+        // Swatch block
+        ctx.fillStyle = hex;
+        ctx.beginPath();
+        drawRoundRect(ctx, cardX + padding, cardY + padding, swatchW, swatchH, Math.round(14 * baseScale));
+        ctx.fill();
 
-      // Coordinates Grid
-      const col2X = margin + cardW * 0.48;
-      ctx.font = `bold ${Math.max(11, Math.round(16 * scale))}px monospace`;
-      ctx.fillStyle = '#71717A';
-      ctx.fillText('RGB:', col2X, textStartY);
-      ctx.fillStyle = '#F4F4F5';
-      ctx.fillText(`${rgb.r}, ${rgb.g}, ${rgb.b}`, col2X + 60 * scale, textStartY);
+        ctx.strokeStyle = '#FFFFFF18';
+        ctx.lineWidth = Math.max(1, 1.5 * baseScale);
+        ctx.stroke();
 
-      ctx.fillStyle = '#71717A';
-      ctx.fillText('HSL:', col2X, textStartY + 26 * scale);
-      ctx.fillStyle = '#F4F4F5';
-      ctx.fillText(`${hsl.h}°, ${hsl.s}%, ${hsl.l}%`, col2X + 60 * scale, textStartY + 26 * scale);
+        // Info Area
+        const infoStartY = cardY + padding + swatchH + 28 * baseScale;
+        const leftX = cardX + padding + 12 * baseScale;
+        const rightX = cardX + cardW - padding - 12 * baseScale;
+        const availableW = rightX - leftX;
 
-      ctx.fillStyle = '#71717A';
-      ctx.fillText('CMYK:', col2X, textStartY + 52 * scale);
-      ctx.fillStyle = '#F4F4F5';
-      ctx.fillText(`${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%`, col2X + 60 * scale, textStartY + 52 * scale);
+        // HEX Code
+        const { text: hexStr, size: hexFontSize } = fitText(
+          ctx,
+          hex,
+          availableW,
+          'monospace',
+          Math.max(26, Math.round(44 * baseScale)),
+          22,
+          'bold'
+        );
+        ctx.font = `bold ${hexFontSize}px monospace`;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(hexStr, leftX, infoStartY);
 
-      // Footer branding
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#52525B';
-      ctx.font = `600 ${Math.max(10, Math.round(14 * scale))}px system-ui, sans-serif`;
-      ctx.fillText('Color Encyclopedia Studio', targetW - margin - 24 * scale, targetH - margin - 24 * scale);
+        // Color Name
+        const nameY = infoStartY + hexFontSize + 8 * baseScale;
+        const { text: nameStr, size: nameFontSize } = fitText(
+          ctx,
+          activeColor.name || 'Universal Palette Anchor',
+          availableW,
+          'system-ui, sans-serif',
+          Math.max(16, Math.round(22 * baseScale)),
+          13,
+          '500'
+        );
+        ctx.font = `500 ${nameFontSize}px system-ui, sans-serif`;
+        ctx.fillStyle = '#A1A1AA';
+        ctx.fillText(nameStr, leftX, nameY);
+
+        // Separator line
+        const sepY = nameY + nameFontSize + 20 * baseScale;
+        ctx.strokeStyle = '#2E2E35';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(leftX, sepY);
+        ctx.lineTo(rightX, sepY);
+        ctx.stroke();
+
+        // Specs 3-Row List
+        const specRows = [
+          { label: 'RGB Model', value: `${rgb.r}, ${rgb.g}, ${rgb.b}` },
+          { label: 'HSL Space', value: `${hsl.h}°, ${hsl.s}%, ${hsl.l}%` },
+          { label: 'CMYK Print', value: `${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%` },
+        ];
+
+        const rowStartY = sepY + 18 * baseScale;
+        const rowHeight = 32 * baseScale;
+        ctx.font = `bold ${Math.max(13, Math.round(16 * baseScale))}px monospace`;
+
+        specRows.forEach((row, i) => {
+          const y = rowStartY + i * rowHeight;
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#71717A';
+          ctx.fillText(row.label, leftX, y);
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#F4F4F5';
+          ctx.fillText(row.value, rightX, y);
+        });
+
+        // Branding footer
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#52525B';
+        ctx.font = `600 ${Math.max(11, Math.round(13 * baseScale))}px system-ui, sans-serif`;
+        ctx.fillText('Color Encyclopedia Studio', targetW / 2, cardY + cardH - 20 * baseScale);
+      } else {
+        // --- LANDSCAPE & SQUARE LAYOUT (Catalog, Desktop, Social, Square) ---
+        const swatchH = Math.round(cardH * 0.52);
+        const swatchW = cardW - padding * 2;
+
+        // Swatch block
+        ctx.fillStyle = hex;
+        ctx.beginPath();
+        drawRoundRect(ctx, cardX + padding, cardY + padding, swatchW, swatchH, Math.round(14 * baseScale));
+        ctx.fill();
+
+        ctx.strokeStyle = '#FFFFFF18';
+        ctx.lineWidth = Math.max(1, 1.5 * baseScale);
+        ctx.stroke();
+
+        // Specs Info Section
+        const infoY = cardY + padding + swatchH + 20 * baseScale;
+        const leftColX = cardX + padding + 8 * baseScale;
+        const midColX = cardX + cardW * 0.46;
+        const rightEdgeX = cardX + cardW - padding - 8 * baseScale;
+        const leftColMaxW = midColX - leftColX - 16 * baseScale;
+
+        // 1. Left Column: HEX and Color Name
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+
+        const { text: hexStr, size: hexFontSize } = fitText(
+          ctx,
+          hex,
+          leftColMaxW,
+          'monospace',
+          Math.max(22, Math.round(36 * baseScale)),
+          18,
+          'bold'
+        );
+        ctx.font = `bold ${hexFontSize}px monospace`;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(hexStr, leftColX, infoY);
+
+        const nameY = infoY + hexFontSize + 6 * baseScale;
+        const { text: nameStr, size: nameFontSize } = fitText(
+          ctx,
+          activeColor.name || 'Universal Color Spec',
+          leftColMaxW,
+          'system-ui, sans-serif',
+          Math.max(13, Math.round(17 * baseScale)),
+          11,
+          '500'
+        );
+        ctx.font = `500 ${nameFontSize}px system-ui, sans-serif`;
+        ctx.fillStyle = '#A1A1AA';
+        ctx.fillText(nameStr, leftColX, nameY);
+
+        // 2. Right Column: RGB, HSL, CMYK specifications
+        const rowSpacing = Math.round(22 * baseScale);
+        const specRows = [
+          { label: 'RGB:', value: `${rgb.r}, ${rgb.g}, ${rgb.b}` },
+          { label: 'HSL:', value: `${hsl.h}°, ${hsl.s}%, ${hsl.l}%` },
+          { label: 'CMYK:', value: `${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%` },
+        ];
+
+        specRows.forEach((row, i) => {
+          const y = infoY + i * rowSpacing;
+
+          // Label (left-aligned at midColX)
+          ctx.textAlign = 'left';
+          ctx.font = `bold ${Math.max(12, Math.round(14 * baseScale))}px monospace`;
+          ctx.fillStyle = '#71717A';
+          ctx.fillText(row.label, midColX, y);
+
+          // Value (right-aligned at rightEdgeX)
+          ctx.textAlign = 'right';
+          const maxValW = rightEdgeX - midColX - 60 * baseScale;
+          const { text: valStr, size: valSize } = fitText(
+            ctx,
+            row.value,
+            maxValW,
+            'monospace',
+            Math.max(12, Math.round(14 * baseScale)),
+            10,
+            'bold'
+          );
+          ctx.font = `bold ${valSize}px monospace`;
+          ctx.fillStyle = '#F4F4F5';
+          ctx.fillText(valStr, rightEdgeX, y);
+        });
+
+        // 3. Footer branding
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#52525B';
+        ctx.font = `600 ${Math.max(10, Math.round(12 * baseScale))}px system-ui, sans-serif`;
+        ctx.fillText('Color Encyclopedia Studio', rightEdgeX, cardY + cardH - 12 * baseScale);
+      }
     }
   };
 
   // Re-render preview canvas whenever activeColor, resolution, or layout changes
   useEffect(() => {
     if (!previewCanvasRef.current) return;
-    // Draw on preview canvas using clamped dimensions for screen display
-    const previewScale = Math.min(640 / activeRes.width, 380 / activeRes.height, 1);
-    const prevW = Math.round(activeRes.width * previewScale);
-    const prevH = Math.round(activeRes.height * previewScale);
-    drawCard(previewCanvasRef.current, prevW, prevH);
+    // Always render at native resolution so canvas coordinate math and quality are 100% faithful
+    drawCard(previewCanvasRef.current, activeRes.width, activeRes.height);
   }, [activeColor, activeRes, selectedStyle]);
 
   const handleDownload = () => {
@@ -361,10 +597,10 @@ export const ImageDownloaderTab: React.FC<ImageDownloaderTabProps> = ({
               <span>Real-Time Canvas Render ({activeRes.width}×{activeRes.height}px @ {activeRes.aspect})</span>
             </div>
 
-            <div className="max-w-full overflow-hidden flex items-center justify-center rounded-xl shadow-2xl border border-black/10 dark:border-white/10">
+            <div className="max-w-full overflow-hidden flex items-center justify-center p-2 rounded-xl shadow-xl bg-zinc-950/20 dark:bg-black/40 border border-black/10 dark:border-white/10">
               <canvas
                 ref={previewCanvasRef}
-                className="max-w-full h-auto object-contain rounded-lg"
+                className="max-w-full max-h-[440px] w-auto h-auto object-contain rounded-lg"
               />
             </div>
           </div>

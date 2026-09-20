@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ActiveColor } from '../../types';
-import { Copy, Check, FileCode2, Terminal, Braces, Sparkles } from 'lucide-react';
+import { Copy, Check, FileCode2, Terminal, Braces } from 'lucide-react';
 
 interface DeveloperExportTabProps {
   activeColor: ActiveColor;

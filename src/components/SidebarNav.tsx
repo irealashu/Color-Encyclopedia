@@ -6,24 +6,14 @@ import {
   Sparkles,
   Eye,
   FileCode2,
-  Pipette,
-  Shuffle,
-  Sun,
-  Moon,
   Heart,
   Palette,
   ImageDown,
-  History,
 } from 'lucide-react';
 
 interface SidebarNavProps {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
-  onRandomize: () => void;
-  onEyeDropper: () => void;
-  hasEyeDropper: boolean;
   favoritesCount: number;
   historyCount: number;
   activeHex: string;
@@ -32,11 +22,6 @@ interface SidebarNavProps {
 export const SidebarNav: React.FC<SidebarNavProps> = ({
   currentTab,
   onSelectTab,
-  isDarkMode,
-  onToggleDarkMode,
-  onRandomize,
-  onEyeDropper,
-  hasEyeDropper,
   favoritesCount,
   historyCount,
   activeHex,
@@ -166,65 +151,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
             );
           })}
         </nav>
-      </div>
-
-      {/* Utilities & Sidebar Footer */}
-      <div className="pt-5 mt-6 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
-        <p className="px-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">
-          Quick Utilities
-        </p>
-
-        {/* Native EyeDropper API (Chromium supported) */}
-        <button
-          id="sidebar-eyedropper-btn"
-          onClick={onEyeDropper}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-800 transition-all active:scale-[0.99]"
-          title={hasEyeDropper ? 'Sample any pixel from your display' : 'EyeDropper requires Chrome or Edge'}
-        >
-          <div className="flex items-center gap-2.5">
-            <Pipette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>EyeDropper Screen Picker</span>
-          </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono">
-            {hasEyeDropper ? 'Ready' : 'Browser'}
-          </span>
-        </button>
-
-        {/* Random Shuffle Generator */}
-        <button
-          id="sidebar-shuffle-btn"
-          onClick={onRandomize}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-800 transition-all active:scale-[0.99]"
-          title="Discover random colors"
-        >
-          <div className="flex items-center gap-2.5">
-            <Shuffle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Random Color Generator</span>
-          </div>
-          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
-            Shuffle
-          </span>
-        </button>
-
-        {/* Dark Mode Dual Toggle in Sidebar */}
-        <button
-          id="sidebar-dark-mode-toggle"
-          onClick={onToggleDarkMode}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-800 transition-all active:scale-[0.99]"
-          aria-label="Toggle dark mode from sidebar"
-        >
-          <div className="flex items-center gap-2.5">
-            {isDarkMode ? (
-              <Sun className="w-4 h-4 text-amber-500" />
-            ) : (
-              <Moon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            )}
-            <span>{isDarkMode ? 'Light Mode (Default)' : 'Dark Mode Theme'}</span>
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-zinc-200/70 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-            {isDarkMode ? 'Dark' : 'Light'}
-          </span>
-        </button>
       </div>
     </aside>
   );

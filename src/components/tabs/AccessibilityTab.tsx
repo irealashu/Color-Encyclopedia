@@ -4,17 +4,13 @@ import {
   evaluateWCAG,
   getAllCVDResults,
   hexToRgb,
-  rgbToHex,
 } from '../../utils/colorMath';
 import {
   Eye,
   CheckCircle2,
   XCircle,
   Copy,
-  Type,
-  Shuffle,
   ShieldCheck,
-  AlertTriangle,
   ArrowRightLeft,
 } from 'lucide-react';
 
@@ -242,33 +238,38 @@ export const AccessibilityTab: React.FC<AccessibilityTabProps> = ({
                 </p>
               </div>
 
-              {/* Side-by-side: Normal vs Simulated */}
-              <div className="space-y-2">
-                <div className="flex rounded-xl overflow-hidden h-16 border border-zinc-200 dark:border-zinc-800 shadow-inner">
-                  {/* Normal side */}
-                  <div
-                    className="flex-1 flex items-center justify-center text-[10px] font-mono font-bold text-white drop-shadow-md relative group cursor-pointer"
-                    style={{ backgroundColor: activeColor.hex }}
-                    onClick={() => onCopyText(activeColor.hex, 'Normal HEX')}
-                    title="Normal vision color"
-                  >
-                    <span>Original</span>
-                  </div>
-                  {/* Simulated side */}
-                  <div
-                    className="flex-1 flex items-center justify-center text-[10px] font-mono font-bold text-white drop-shadow-md relative group cursor-pointer"
-                    style={{ backgroundColor: result.simulatedHex }}
-                    onClick={() => onSelectColor(result.simulatedHex, `${result.title} Simulated`)}
-                    title={`Click to set simulated ${result.simulatedHex} as active`}
-                  >
-                    <span>Simulated</span>
-                  </div>
+              {/* Side-by-side: Normal vs Simulated with separate text */}
+              <div className="space-y-2.5">
+                {/* Labels above swatches */}
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-zinc-600 dark:text-zinc-400">
+                  <span>Standard Vision</span>
+                  <span className="text-right">Simulated Perception</span>
                 </div>
 
-                {/* Simulated Spec details */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-400">Perceived HEX:</span>
-                  <div className="flex items-center gap-1.5 font-mono font-bold text-zinc-800 dark:text-zinc-200">
+                {/* Pure Color Cards side-by-side */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div
+                    className="h-14 rounded-xl border border-black/10 dark:border-white/10 shadow-xs cursor-pointer transition-transform hover:scale-[1.02]"
+                    style={{ backgroundColor: activeColor.hex }}
+                    onClick={() => onCopyText(activeColor.hex, 'Normal HEX')}
+                    title={`Standard: ${activeColor.hex} (Click to copy)`}
+                  />
+                  <div
+                    className="h-14 rounded-xl border border-black/10 dark:border-white/10 shadow-xs cursor-pointer transition-transform hover:scale-[1.02]"
+                    style={{ backgroundColor: result.simulatedHex }}
+                    onClick={() => onSelectColor(result.simulatedHex, `${result.title} Simulated`)}
+                    title={`Simulated: ${result.simulatedHex} (Click to activate)`}
+                  />
+                </div>
+
+                {/* Separate Spec details below swatches */}
+                <div className="grid grid-cols-2 gap-2 text-xs pt-0.5">
+                  <div className="flex items-center gap-1 font-mono text-zinc-600 dark:text-zinc-400">
+                    <span className="text-[10px] uppercase text-zinc-400">Base:</span>
+                    <span>{activeColor.hex}</span>
+                  </div>
+                  <div className="flex items-center justify-end gap-1.5 font-mono font-bold text-zinc-800 dark:text-zinc-200">
+                    <span className="text-[10px] uppercase text-zinc-400 font-normal">Perceived:</span>
                     <span>{result.simulatedHex}</span>
                     <button
                       onClick={() => onCopyText(result.simulatedHex, `${result.title} HEX`)}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HistoryItem } from '../../types';
-import { Heart, History, Trash2, Copy, Check, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, History, Trash2, Copy } from 'lucide-react';
 
 interface FavoritesHistoryTabProps {
   favorites: string[];
@@ -91,25 +91,28 @@ export const FavoritesHistoryTab: React.FC<FavoritesHistoryTabProps> = ({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
               {favorites.map((hex) => {
                 const isCurrent = activeHex.toUpperCase() === hex.toUpperCase();
                 return (
                   <div
                     key={hex}
-                    className={`group relative rounded-2xl border transition-all bg-white dark:bg-zinc-900 overflow-hidden ${
-                      isCurrent
-                        ? 'ring-2 ring-zinc-900 dark:ring-zinc-100 border-zinc-900 dark:border-zinc-100 shadow-md'
-                        : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
-                    }`}
+                    id={`fav-item-${hex.replace('#', '')}`}
+                    className="group flex flex-col space-y-2.5"
                   >
-                    {/* Swatch */}
+                    {/* Standalone Visual Color Card */}
                     <div
                       onClick={() => onSelectColor(hex, 'Bookmarked Color')}
-                      className="h-24 w-full cursor-pointer relative"
+                      className={`relative h-28 sm:h-32 w-full rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs group-hover:shadow-md group-hover:-translate-y-1 overflow-hidden ${
+                        isCurrent
+                          ? 'ring-2 ring-zinc-900 dark:ring-zinc-100 border-transparent shadow-md'
+                          : 'border-black/10 dark:border-white/10 hover:border-black/25 dark:hover:border-white/25'
+                      }`}
                       style={{ backgroundColor: hex }}
-                      title="Click to set active"
+                      title={`Click to set ${hex} as active`}
                     >
+                      {/* Visual Swatch Surface */}
+
                       {/* Un-favorite button */}
                       <button
                         onClick={(e) => {
@@ -118,22 +121,34 @@ export const FavoritesHistoryTab: React.FC<FavoritesHistoryTabProps> = ({
                         }}
                         className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-rose-600 text-white backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-all shadow-sm"
                         title="Remove from favorites"
+                        aria-label={`Remove ${hex} from favorites`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
+
+                      {/* Active Indicator Badge */}
+                      {isCurrent && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 text-white text-[10px] font-semibold backdrop-blur-xs flex items-center gap-1 shadow-sm">
+                          <Heart className="w-2.5 h-2.5 text-rose-400 fill-current" />
+                          Active
+                        </div>
+                      )}
                     </div>
 
-                    <div className="p-3 flex items-center justify-between">
+                    {/* Separate Text Section Below Card */}
+                    <div className="px-0.5 flex items-center justify-between gap-1">
                       <span
                         onClick={() => onSelectColor(hex, 'Bookmarked Color')}
-                        className="font-mono font-bold text-xs text-zinc-900 dark:text-zinc-100 cursor-pointer"
+                        className="font-mono font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 cursor-pointer hover:underline"
+                        title="Click to activate"
                       >
                         {hex}
                       </span>
                       <button
                         onClick={() => onCopyText(hex, 'HEX')}
-                        className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1"
+                        className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                         title="Copy HEX"
+                        aria-label={`Copy HEX code ${hex}`}
                       >
                         <Copy className="w-3.5 h-3.5" />
                       </button>
@@ -197,7 +212,7 @@ export const FavoritesHistoryTab: React.FC<FavoritesHistoryTabProps> = ({
                         <p className="text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100">
                           {item.hex}
                         </p>
-                        <p className="text-[11px] text-zinc-400 truncate">
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 break-words leading-tight" title={item.name || 'Inspected Swatch'}>
                           {item.name || 'Inspected Swatch'}
                         </p>
                       </div>

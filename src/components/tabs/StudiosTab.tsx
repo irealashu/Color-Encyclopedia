@@ -3,7 +3,6 @@ import { ActiveColor } from '../../types';
 import { generateHarmonies } from '../../utils/colorMath';
 import { extractPaletteFromImageData } from '../../utils/paletteExtractor';
 import {
-  Sparkles,
   Copy,
   Check,
   Upload,
@@ -53,7 +52,6 @@ export const StudiosTab: React.FC<StudiosTabProps> = ({
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Pre-loaded sample images generated via canvas
   const loadSampleImage = (type: 'sunset' | 'cyber' | 'forest') => {
@@ -135,7 +133,13 @@ export const StudiosTab: React.FC<StudiosTabProps> = ({
         }
         setIsExtracting(false);
       };
+      img.onerror = () => {
+        setIsExtracting(false);
+      };
       img.src = e.target?.result as string;
+    };
+    reader.onerror = () => {
+      setIsExtracting(false);
     };
     reader.readAsDataURL(file);
   };
@@ -228,8 +232,8 @@ export const StudiosTab: React.FC<StudiosTabProps> = ({
                   </button>
                 </div>
 
-                {/* Swatches strip */}
-                <div className="flex rounded-xl overflow-hidden h-14 border border-zinc-200 dark:border-zinc-800">
+                {/* Harmony Color Swatch Bar */}
+                <div className="flex rounded-xl overflow-hidden h-14 border border-zinc-200 dark:border-zinc-800 shadow-xs">
                   {harmony.colors.map((hex, idx) => (
                     <button
                       key={idx}
@@ -237,19 +241,28 @@ export const StudiosTab: React.FC<StudiosTabProps> = ({
                       className="group relative flex-1 h-full transition-transform hover:scale-105 active:scale-95 focus:outline-hidden"
                       style={{ backgroundColor: hex }}
                       title={`Click to set ${hex} as active`}
-                    >
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white font-mono font-bold transition-opacity">
-                        {hex}
-                      </div>
-                    </button>
+                    />
                   ))}
                 </div>
 
-                <div className="flex justify-between items-center text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
-                  <span>{harmony.colors.length} hues</span>
-                  <span className="truncate max-w-[170px]">
-                    {harmony.colors.join(' · ')}
-                  </span>
+                {/* Separate Color Codes (Wrapped, Never Cut Off) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex justify-between items-center text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                    <span>{harmony.colors.length} chromatic steps</span>
+                    <span>Click code to activate</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {harmony.colors.map((hex, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => onSelectColor(hex, `${harmony.name} #${idx + 1}`)}
+                        className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-700/80 font-medium transition-colors"
+                        title={`Activate ${hex}`}
+                      >
+                        {hex}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
@@ -358,34 +371,38 @@ export const StudiosTab: React.FC<StudiosTabProps> = ({
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
               {extractedColors.map((hex, idx) => (
                 <div
                   key={idx}
                   id={`extracted-color-${idx}`}
-                  onClick={() => onSelectColor(hex, `Extracted Swatch #${idx + 1}`)}
-                  className="group p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-600 transition-all hover:scale-102"
+                  className="flex flex-col space-y-2 group"
                 >
+                  {/* Dedicated Visual Swatch Card */}
                   <div
-                    className="h-14 w-full rounded-lg shadow-inner mb-2 flex items-center justify-center text-white opacity-95 group-hover:opacity-100"
+                    onClick={() => onSelectColor(hex, `Extracted Swatch #${idx + 1}`)}
+                    className="h-16 w-full rounded-xl border border-black/10 dark:border-white/10 shadow-xs cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all"
                     style={{ backgroundColor: hex }}
-                  >
-                    <span className="opacity-0 group-hover:opacity-100 text-[10px] font-mono font-bold bg-black/60 px-1.5 py-0.5 rounded backdrop-blur-xs transition-opacity">
-                      Activate
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between px-1">
-                    <span className="text-xs font-mono font-bold text-zinc-800 dark:text-zinc-200">
+                    title={`Click to set ${hex} as active`}
+                  />
+                  {/* Separate Text Info & Copy */}
+                  <div className="flex items-center justify-between px-0.5">
+                    <button
+                      onClick={() => onSelectColor(hex, `Extracted Swatch #${idx + 1}`)}
+                      className="text-xs font-mono font-bold text-zinc-800 dark:text-zinc-200 hover:underline cursor-pointer"
+                    >
                       {hex}
-                    </span>
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onCopyText(hex, 'Swatch HEX');
                       }}
-                      className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-0.5"
+                      className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                      title="Copy HEX"
+                      aria-label={`Copy HEX ${hex}`}
                     >
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>

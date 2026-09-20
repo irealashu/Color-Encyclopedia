@@ -238,6 +238,8 @@ export default function App() {
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleDarkMode}
         onRandomize={handleRandomizeColor}
+        onEyeDropper={handleEyeDropper}
+        hasEyeDropper={hasEyeDropper}
       />
 
       {/* Main Workspace Layout */}
@@ -246,11 +248,6 @@ export default function App() {
         <SidebarNav
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={handleToggleDarkMode}
-          onRandomize={handleRandomizeColor}
-          onEyeDropper={handleEyeDropper}
-          hasEyeDropper={hasEyeDropper}
           favoritesCount={favorites.length}
           historyCount={history.length}
           activeHex={activeColor.hex}

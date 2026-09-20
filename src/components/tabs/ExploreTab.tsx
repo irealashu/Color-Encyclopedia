@@ -9,7 +9,6 @@ import {
   NEON_CYBERPUNK_COLORS,
 } from '../../data/curatedPalettes';
 import { Search, Copy, Check, Sparkles, Filter } from 'lucide-react';
-import { evaluateWCAG } from '../../utils/colorMath';
 
 interface ExploreTabProps {
   activeHex: string;
@@ -136,7 +135,7 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
           {filteredColors.map((color) => {
             const isSelected = activeHex.toUpperCase() === color.hex.toUpperCase();
             const isCopied = recentlyCopiedId === color.id;
@@ -144,25 +143,29 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
             return (
               <div
                 key={color.id}
-                id={`card-${color.id}`}
-                onClick={() => onSelectColor(color.hex, color.name)}
-                className={`group relative rounded-2xl border transition-all cursor-pointer bg-white dark:bg-zinc-900 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 ${
-                  isSelected
-                    ? 'ring-2 ring-zinc-900 dark:ring-zinc-100 border-zinc-900 dark:border-zinc-100 shadow-md'
-                    : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
-                }`}
+                id={`item-${color.id}`}
+                className="group flex flex-col space-y-2.5"
               >
-                {/* Visual Swatch Block */}
+                {/* 1. Dedicated Visual Color Card (Pure Swatch Card) */}
                 <div
-                  className="h-24 sm:h-28 w-full relative transition-transform duration-300 group-hover:scale-105"
+                  id={`card-${color.id}`}
+                  onClick={() => onSelectColor(color.hex, color.name)}
+                  className={`relative h-28 sm:h-32 w-full rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs group-hover:shadow-md group-hover:-translate-y-1 overflow-hidden ${
+                    isSelected
+                      ? 'ring-2 ring-zinc-900 dark:ring-zinc-100 border-transparent shadow-md'
+                      : 'border-black/10 dark:border-white/10 hover:border-black/25 dark:hover:border-white/25'
+                  }`}
                   style={{ backgroundColor: color.hex }}
+                  title={`Select ${color.name} (${color.hex})`}
                 >
+                  {/* Visual Swatch Surface */}
+
                   {/* Hover Quick-Copy Button */}
                   <button
                     id={`quick-copy-${color.id}`}
                     onClick={(e) => handleQuickCopy(e, color)}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-white backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    title="Hover Quick-Copy HEX"
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-black/85 text-white backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    title="Quick Copy HEX"
                     aria-label={`Copy HEX code for ${color.name}`}
                   >
                     {isCopied ? (
@@ -174,25 +177,32 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
 
                   {/* Active Indicator Badge */}
                   {isSelected && (
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-semibold backdrop-blur-xs flex items-center gap-1">
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 text-white text-[10px] font-semibold backdrop-blur-xs flex items-center gap-1 shadow-sm">
                       <Sparkles className="w-2.5 h-2.5 text-amber-300" />
                       Active
                     </div>
                   )}
                 </div>
 
-                {/* Card Details */}
-                <div className="p-3">
-                  <div className="flex items-center justify-between gap-1">
-                    <h3 className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                      {color.name}
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-xs">
-                    <span className="font-mono text-zinc-500 dark:text-zinc-400 font-medium">
-                      {color.hex}
-                    </span>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 capitalize">
+                {/* 2. Separate Text Details Section (Outside/Beneath the Card - No Cut Offs) */}
+                <div className="px-0.5 space-y-1">
+                  <h3
+                    onClick={() => onSelectColor(color.hex, color.name)}
+                    className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 cursor-pointer hover:underline break-words leading-snug"
+                    title={color.name}
+                  >
+                    {color.name}
+                  </h3>
+                  <div className="flex items-center justify-between gap-1 text-xs pt-0.5">
+                    <button
+                      onClick={(e) => handleQuickCopy(e, color)}
+                      className="font-mono text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors flex items-center gap-1"
+                      title="Click to copy HEX"
+                    >
+                      <span>{color.hex}</span>
+                      {isCopied && <Check className="w-3 h-3 text-emerald-500" />}
+                    </button>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 capitalize font-medium shrink-0">
                       {color.category}
                     </span>
                   </div>

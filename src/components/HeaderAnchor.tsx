@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ActiveColor } from '../types';
 import { evaluateWCAG } from '../utils/colorMath';
-import { Heart, Copy, ImageDown, Moon, Sun, Check, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Heart, Copy, ImageDown, Moon, Sun, Check, Sparkles, Pipette } from 'lucide-react';
 
 interface HeaderAnchorProps {
   activeColor: ActiveColor;
@@ -12,6 +12,8 @@ interface HeaderAnchorProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
   onRandomize: () => void;
+  onEyeDropper: () => void;
+  hasEyeDropper: boolean;
 }
 
 export const HeaderAnchor: React.FC<HeaderAnchorProps> = ({
@@ -23,6 +25,8 @@ export const HeaderAnchor: React.FC<HeaderAnchorProps> = ({
   isDarkMode,
   onToggleDarkMode,
   onRandomize,
+  onEyeDropper,
+  hasEyeDropper,
 }) => {
   const [copiedPill, setCopiedPill] = useState<string | null>(null);
 
@@ -60,14 +64,16 @@ export const HeaderAnchor: React.FC<HeaderAnchorProps> = ({
             tabIndex={0}
             aria-label={`Active Color ${hexString}, click to copy`}
           >
-            {/* Checkerboard backdrop for alpha */}
-            <div
-              className="absolute inset-0 opacity-40"
-              style={{
-                backgroundImage: 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%)',
-                backgroundSize: '10px 10px',
-              }}
-            />
+            {/* Checkerboard backdrop only for transparent colors */}
+            {activeColor.alpha < 1 && (
+              <div
+                className="absolute inset-0 opacity-40"
+                style={{
+                  backgroundImage: 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%)',
+                  backgroundSize: '10px 10px',
+                }}
+              />
+            )}
             {/* Color fill layer */}
             <div
               className="absolute inset-0 transition-colors"
@@ -158,11 +164,26 @@ export const HeaderAnchor: React.FC<HeaderAnchorProps> = ({
           <button
             id="header-shuffle-btn"
             onClick={onRandomize}
-            className="p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all"
+            className="p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all active:scale-95"
             title="Randomize active color"
             aria-label="Randomize active color"
           >
             <Sparkles className="w-4 h-4" />
+          </button>
+
+          {/* Eyedropper Screen Picker */}
+          <button
+            id="header-eyedropper-btn"
+            onClick={onEyeDropper}
+            className="p-2 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all active:scale-95"
+            title={
+              hasEyeDropper
+                ? 'Sample color from screen (Eyedropper)'
+                : 'Sample color from screen (Eyedropper requires Chrome or Edge)'
+            }
+            aria-label="Sample color from screen with eyedropper"
+          >
+            <Pipette className="w-4 h-4" />
           </button>
 
           {/* Favoriting Action */}
