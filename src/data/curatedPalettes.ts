@@ -1,0 +1,103 @@
+import { ColorItem } from '../types';
+
+export const CSS_NAMED_COLORS: ColorItem[] = [
+  { id: 'css-black', name: 'Black', hex: '#000000', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-silver', name: 'Silver', hex: '#C0C0C0', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-gray', name: 'Gray', hex: '#808080', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-white', name: 'White', hex: '#FFFFFF', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-maroon', name: 'Maroon', hex: '#800000', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-red', name: 'Red', hex: '#FF0000', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-purple', name: 'Purple', hex: '#800080', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-fuchsia', name: 'Fuchsia', hex: '#FF00FF', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-green', name: 'Green', hex: '#008000', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-lime', name: 'Lime', hex: '#00FF00', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-olive', name: 'Olive', hex: '#808000', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-yellow', name: 'Yellow', hex: '#FFFF00', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-navy', name: 'Navy', hex: '#000080', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-blue', name: 'Blue', hex: '#0000FF', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-teal', name: 'Teal', hex: '#008080', category: 'css', description: 'W3C Level 1 Standard' },
+  { id: 'css-aqua', name: 'Aqua', hex: '#00FFFF', category: 'css', description: 'W3C Level 1 Standard' },
+];
+
+export const MATERIAL_500_COLORS: ColorItem[] = [
+  { id: 'mat-red', name: 'Red 500', hex: '#F44336', category: 'material', description: 'Material Palette' },
+  { id: 'mat-pink', name: 'Pink 500', hex: '#E91E63', category: 'material', description: 'Material Palette' },
+  { id: 'mat-purple', name: 'Purple 500', hex: '#9C27B0', category: 'material', description: 'Material Palette' },
+  { id: 'mat-deep-purple', name: 'Deep Purple 500', hex: '#673AB7', category: 'material', description: 'Material Palette' },
+  { id: 'mat-indigo', name: 'Indigo 500', hex: '#3F51B5', category: 'material', description: 'Material Palette' },
+  { id: 'mat-blue', name: 'Blue 500', hex: '#2196F3', category: 'material', description: 'Material Palette' },
+  { id: 'mat-light-blue', name: 'Light Blue 500', hex: '#03A9F4', category: 'material', description: 'Material Palette' },
+  { id: 'mat-cyan', name: 'Cyan 500', hex: '#00BCD4', category: 'material', description: 'Material Palette' },
+  { id: 'mat-teal', name: 'Teal 500', hex: '#009688', category: 'material', description: 'Material Palette' },
+  { id: 'mat-green', name: 'Green 500', hex: '#4CAF50', category: 'material', description: 'Material Palette' },
+  { id: 'mat-light-green', name: 'Light Green 500', hex: '#8BC34A', category: 'material', description: 'Material Palette' },
+  { id: 'mat-lime', name: 'Lime 500', hex: '#CDDC39', category: 'material', description: 'Material Palette' },
+  { id: 'mat-yellow', name: 'Yellow 500', hex: '#FFEB3B', category: 'material', description: 'Material Palette' },
+  { id: 'mat-amber', name: 'Amber 500', hex: '#FFC107', category: 'material', description: 'Material Palette' },
+  { id: 'mat-orange', name: 'Orange 500', hex: '#FF9800', category: 'material', description: 'Material Palette' },
+  { id: 'mat-deep-orange', name: 'Deep Orange 500', hex: '#FF5722', category: 'material', description: 'Material Palette' },
+  { id: 'mat-brown', name: 'Brown 500', hex: '#795548', category: 'material', description: 'Material Palette' },
+  { id: 'mat-grey', name: 'Grey 500', hex: '#9E9E9E', category: 'material', description: 'Material Palette' },
+  { id: 'mat-blue-grey', name: 'Blue Grey 500', hex: '#607D8B', category: 'material', description: 'Material Palette' },
+];
+
+export const TAILWIND_500_COLORS: ColorItem[] = [
+  { id: 'tw-slate', name: 'Slate 500', hex: '#64748B', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-gray', name: 'Gray 500', hex: '#6B7280', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-zinc', name: 'Zinc 500', hex: '#71717A', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-neutral', name: 'Neutral 500', hex: '#737373', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-stone', name: 'Stone 500', hex: '#78716C', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-red', name: 'Red 500', hex: '#EF4444', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-orange', name: 'Orange 500', hex: '#F97316', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-amber', name: 'Amber 500', hex: '#F59E0B', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-yellow', name: 'Yellow 500', hex: '#EAB308', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-lime', name: 'Lime 500', hex: '#84CC16', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-green', name: 'Green 500', hex: '#22C55E', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-emerald', name: 'Emerald 500', hex: '#10B981', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-teal', name: 'Teal 500', hex: '#14B8A6', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-cyan', name: 'Cyan 500', hex: '#06B6D4', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-sky', name: 'Sky 500', hex: '#0EA5E9', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-blue', name: 'Blue 500', hex: '#3B82F6', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-indigo', name: 'Indigo 500', hex: '#6366F1', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-violet', name: 'Violet 500', hex: '#8B5CF6', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-purple', name: 'Purple 500', hex: '#A855F7', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-fuchsia', name: 'Fuchsia 500', hex: '#D946EF', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-pink', name: 'Pink 500', hex: '#EC4899', category: 'tailwind', description: 'Tailwind Core' },
+  { id: 'tw-rose', name: 'Rose 500', hex: '#F43F5E', category: 'tailwind', description: 'Tailwind Core' },
+];
+
+export const PASTEL_DREAMS_COLORS: ColorItem[] = [
+  { id: 'pas-lavender', name: 'Lavender Mist', hex: '#E6E6FA', category: 'pastel', description: 'Soft Botanical' },
+  { id: 'pas-peach', name: 'Peach Sorbet', hex: '#FFDAB9', category: 'pastel', description: 'Warm Dessert' },
+  { id: 'pas-mint', name: 'Mint Gelato', hex: '#BCEE68', category: 'pastel', description: 'Fresh Herbal' },
+  { id: 'pas-buttercup', name: 'Buttercup Milk', hex: '#FFFACD', category: 'pastel', description: 'Gentle Sunlight' },
+  { id: 'pas-babyblue', name: 'Baby Cloud Blue', hex: '#B0E0E6', category: 'pastel', description: 'Atmospheric Air' },
+  { id: 'pas-dustyrose', name: 'Dusty Rose', hex: '#D8A7B1', category: 'pastel', description: 'Vintage Petal' },
+  { id: 'pas-sagewhisper', name: 'Sage Whisper', hex: '#B2AC88', category: 'pastel', description: 'Earth Herbal' },
+  { id: 'pas-lilac', name: 'Lilac Cloud', hex: '#C8A2C8', category: 'pastel', description: 'Evening Blossom' },
+  { id: 'pas-chamomile', name: 'Chamomile Cream', hex: '#FDFD96', category: 'pastel', description: 'Mild Bloom' },
+  { id: 'pas-seafoam', name: 'Seafoam Haze', hex: '#93E9BE', category: 'pastel', description: 'Coastal Breeze' },
+  { id: 'pas-powderpink', name: 'Powder Pink', hex: '#FFB6C1', category: 'pastel', description: 'Soft Silk' },
+  { id: 'pas-periwinkle', name: 'Muted Periwinkle', hex: '#CCCCFF', category: 'pastel', description: 'Twilight Haze' },
+];
+
+export const NEON_CYBERPUNK_COLORS: ColorItem[] = [
+  { id: 'neo-cyber-yellow', name: 'Cyberpunk Yellow', hex: '#FCEE0A', category: 'neon', description: 'Night City High Voltage' },
+  { id: 'neo-laser-magenta', name: 'Laser Magenta', hex: '#FF007F', category: 'neon', description: 'Retrowave Beam' },
+  { id: 'neo-electric-cyan', name: 'Electric Cyan', hex: '#00F0FF', category: 'neon', description: 'Fiber Optic Glow' },
+  { id: 'neo-toxic-lime', name: 'Toxic Lime', hex: '#39FF14', category: 'neon', description: 'Radioactive Glow' },
+  { id: 'neo-acid-orange', name: 'Acid Orange', hex: '#FF5F00', category: 'neon', description: 'Synthetic Heat' },
+  { id: 'neo-hyper-violet', name: 'Hyper Violet', hex: '#7B00FF', category: 'neon', description: 'Deep Synth Strobe' },
+  { id: 'neo-hot-pink', name: 'Hot Pink Neon', hex: '#FF10F0', category: 'neon', description: 'Arcade Luminescence' },
+  { id: 'neo-ultra-turq', name: 'Ultra Turquoise', hex: '#08F7FE', category: 'neon', description: 'Hologram Grid' },
+  { id: 'neo-plasma-green', name: 'Plasma Green', hex: '#05FFA1', category: 'neon', description: 'Neural Pulse' },
+  { id: 'neo-solar-flare', name: 'Solar Flare', hex: '#FF3131', category: 'neon', description: 'Thermal Overload' },
+];
+
+export const ALL_CURATED_COLORS: ColorItem[] = [
+  ...CSS_NAMED_COLORS,
+  ...MATERIAL_500_COLORS,
+  ...TAILWIND_500_COLORS,
+  ...PASTEL_DREAMS_COLORS,
+  ...NEON_CYBERPUNK_COLORS,
+];
